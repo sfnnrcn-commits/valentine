@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>For My Valentine ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        /* LE CURSEUR GIBBON */
+        * {
+            cursor: url('gibboncurseur.png') 32 32, auto !important;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #ffdef2;
+            font-family: 'Press Start 2P', cursive;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* Cadre Photo Accueil */
+        .wave-container {
+            width: 85%; max-width: 500px;
+            border: 8px solid #fff; box-shadow: 0 8px 0 #d8a0b0;
+            margin-bottom: 20px; z-index: 10; background: #fff;
+        }
+        .wave-container img { width: 100%; height: auto; display: block; }
+
+        h1 { color: #ff4d6d; font-size: 14px; text-align: center; z-index: 10; line-height: 1.6; pointer-events: none; }
+
+        /* Boutons */
+        .btn-wrapper { position: relative; width: 100%; height: 100px; margin-top: 20px; z-index: 20; }
+        button {
+            padding: 12px 20px; font-family: 'Press Start 2P', cursive;
+            border: 4px solid #000; font-size: 12px; position: absolute;
+        }
+        #yesBtn { background: #72efdd; left: calc(50% - 130px); top: 20px; }
+        #noBtn { background: #ff758f; left: calc(50% + 20px); top: 20px; transition: 0.1s; }
+
+        /* LES 100 COEURS */
+        .floating-heart {
+            position: absolute; width: 45px; z-index: 1;
+            transition: transform 0.2s ease-out;
+            pointer-events: auto;
+        }
+        .floating-heart:hover { transform: scale(1.6) rotate(20deg); }
+
+        /* PAGE 2 - TAILLES AUGMENTÉES */
+        .big-love { color: white; font-size: 40px; text-shadow: 4px 4px #ff4d6d; margin-bottom: 20px; text-align: center; z-index: 10; }
+        .countdown-title { color: white; font-size: 20px; margin-top: 30px; z-index: 10; }
+        .clock-display { color: white; font-size: 25px; margin-top: 15px; text-shadow: 2px 2px #ff4d6d; z-index: 10; }
+        
+        .orchid { position: absolute; font-size: 35px; pointer-events: none; z-index: 5; animation: fall 3s linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        #backBtn {
+            position: absolute; bottom: 20px; left: 20px;
+            background: #fff; padding: 10px; font-size: 8px;
+            cursor: pointer !important; z-index: 100; border: 3px solid #000;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="audioDej" src="dej.mp3" preload="auto"></audio>
+    <audio id="audioNon" src="non.m4a" preload="auto"></audio>
+
+    <div id="page-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;"></div>
+
+    <script>
+        const audioDej = document.getElementById('audioDej');
+        const audioNon = document.getElementById('audioNon');
+
+        function spawnHearts() {
+            for(let i=0; i<100; i++) {
+                const h = document.createElement('img');
+                h.src = 'keur.gif';
+                h.className = 'floating-heart';
+                h.style.left = Math.random() * 98 + 'vw';
+                h.style.top = Math.random() * 95 + 'vh';
+                document.body.appendChild(h);
+            }
+        }
+
+        function initMainPage() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div class="wave-container" id="waveBox"><img src="wave.jpg" alt="Valentine"></div>
+                <h1>Will you be my <br>pixel-perfect Valentine?</h1>
+                <div class="btn-wrapper">
+                    <button id="yesBtn">OUI</button>
+                    <button id="noBtn">NON</button>
+                </div>`;
+
+            document.getElementById('waveBox').addEventListener('mouseenter', () => audioDej.play().catch(() => {}));
+            
+            const noBtn = document.getElementById('noBtn');
+            noBtn.addEventListener('mouseover', function() {
+                this.style.position = 'fixed';
+                this.style.left = Math.random() * (window.innerWidth - 150) + 'px';
+                this.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+                audioNon.currentTime = 0;
+                audioNon.play().catch(() => {});
+            });
+
+            document.getElementById('yesBtn').addEventListener('click', showSuccessPage);
+        }
+
+        function showSuccessPage() {
+            const content = document.getElementById('page-content');
+            content.innerHTML = `
+                <div style="text-align:center; background:#ff758f; height:100vh; width:100vw; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden;">
+                    <div class="big-love">JE T'AIME MI BB ❤️</div>
+                    <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExM21semZ2YzV0OGtkaDk2bzY3ZnBqMGR6MXdzZjQzNDA2eGpob25pMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qv6M5EBN5fhMA/giphy.gif" width="400" style="border:10px solid white; z-index:10; position:relative;">
+                    <div class="countdown-title">À TRÈS VITE...</div>
+                    <div class="clock-display" id="clock"></div>
+                    <div id="backBtn">⬅ REVENIR</div>
+                </div>`;
+            
+            const target = new Date("April 4, 2026 16:00:00").getTime();
+            const timer = setInterval(() => {
+                const clock = document.getElementById('clock');
+                if (!clock) { clearInterval(timer); return; }
+                const now = new Date().getTime();
+                const diff = target - now;
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                clock.innerHTML = d + "j " + h + "h " + m + "m " + s + "s";
+            }, 1000);
+
+            for(let i=0; i<40; i++) {
+                setTimeout(() => {
+                    const o = document.createElement('div');
+                    o.innerHTML = '🌸'; o.className = 'orchid';
+                    o.style.left = Math.random() * 95 + 'vw';
+                    o.style.top = '-50px';
+                    document.body.appendChild(o);
+                    setTimeout(() => o.remove(), 3500);
+                }, i * 150);
+            }
+
+            document.getElementById('backBtn').addEventListener('click', () => location.reload());
+        }
+
+        spawnHearts();
+        initMainPage();
+    </script>
+</body>
+</html>
